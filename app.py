@@ -35,7 +35,7 @@ def proxy(path):
     if request.method == 'POST':
         response = post(url=(os.path.join(base, path)),
                    headers={client_auth_header: token, content_type: request.headers.get(content_type)},
-                   params = request.args, data = request.data)
+                   params = request.args, data = request.get_data())
     else:
         response = get(url=(os.path.join(base, path)),
                    headers={client_auth_header: token},
@@ -50,7 +50,7 @@ def proxy(path):
                 if request.method == 'POST':
                     response = post(url=(os.path.join(base, path)),
                                headers={client_auth_header: token, content_type: request.headers.get(content_type)},
-                               params = request.args, data = request.data)
+                               params = request.args, data = request.get_data())
                 else:
 	            response = get(url=(os.path.join(base, path)),
                                headers={client_auth_header: token},
