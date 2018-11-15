@@ -1,6 +1,7 @@
 from flask import Flask, request
 from flask_cors import CORS
 from requests import get, post
+from werkzeug.contrib.fixers import ProxyFix
 import os
 
 app = Flask(__name__)
@@ -33,7 +34,7 @@ def proxy(path):
         token = get_token()
     if request.method == 'POST':
         response = post(url=(os.path.join(base, path)),
-                   headers={client_auth_header: token, content_type: 'application/json'},
+                   headers={client_auth_header: token, content_type: request.headers.get(content_type)},
                    params = request.args, data = request.data)
     else:
         response = get(url=(os.path.join(base, path)),
@@ -44,11 +45,11 @@ def proxy(path):
         response_error = data["error"]
         response_status = data["status"]
         if response_error and response_status is not None:
-            if responce_status == 401:
+            if response_status == 401:
                 token = get_token()
                 if request.method == 'POST':
                     response = post(url=(os.path.join(base, path)),
-                               headers={client_auth_header: token, content_type: 'application/json'},
+                               headers={client_auth_header: token, content_type: request.headers.get(content_type)},
                                params = request.args, data = request.data)
                 else:
 	            response = get(url=(os.path.join(base, path)),
@@ -59,6 +60,6 @@ def proxy(path):
     response.headers[access_control_origin] = '*'
     return response.text, response.status_code
 
-
+app.wsgi_app = ProxyFix(app.wsgi_app)
 if __name__ == '__main__':
     app.run(threaded=True)
