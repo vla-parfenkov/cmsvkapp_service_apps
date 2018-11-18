@@ -1,1 +1,1 @@
-# cmsvkapp_service_apps
+Промежуточный сервер для стороннего API
